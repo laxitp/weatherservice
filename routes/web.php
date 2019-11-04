@@ -26,5 +26,5 @@ Route::get('/cache-clear', function () {
 // Web Services @//
 
 Route::Group(['prefix' => '/api/v1'], function () {
-    Route::post('/getWeatherInfo', 'Api\WeatherApi@postGuzzleRequest')->name('postGuzzleRequest');
+    Route::post('/getWeatherInfo', 'Api\WeatherApi@postGuzzleRequest');
 });

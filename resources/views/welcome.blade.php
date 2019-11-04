@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="{{ app()->getLocale() }}">
-    <head>
-        <meta charset="utf-8">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Weather API</title>
@@ -61,28 +61,73 @@
             });
             </script>
             @endif
+            
+            <div class="alert alert-danger" style="display:none;">
+               <span class="error-msg"></span>
+            </div>
+            
             <h1>                    
                 Weather API 
             </h1>
-            <div style="color:#000000; text-align: center;">
             <br /><br />
-            <h4> Wind Speed </h4>
-            <br /><br /><br />
-            <table align="center">
-                <tr>
-                    <th> Speed </th>
-                    <th> DEG </th> 
-                    <th> GUST </th> 
-                </tr>
-                <tr>
-                    <td> @if($res['wind']['speed']){{ $res['wind']['speed']}}@endif </td>
-                    <td> @if($res['wind']['speed']){{ $res['wind']['deg']}}@endif </td> 
-                    <td> @if($res['wind']['speed']){{ $res['wind']['gust']}}@endif </td> 
-                </tr>                
-            </table>
+            <form action="" method="POST">
+                {{ csrf_field() }}
+                
+                <input onkeypress="javascript:return isNumber(event);"  maxlength="5" type="text" name="zipcode" id="zipcode" placeholder="Zipcode" required="required">  <button class="formSubmit" type="button" name="submit" > Submit </button> <input type="reset" name="Reset" >   
+            </form>
+            <div id="data-show" style="color:#000000; text-align: center; display: none;">
+                <br /><br />
+                <h4> Wind Speed </h4>
+                <br />
+                <table align="center">
+                    <tr>
+                        <th> City  </th>
+                        <th> Speed </th>
+                        <th> DEG </th> 
+                        <th> GUST </th> 
+                    </tr>
+                    <tr>
+                        <td> <span class="city_name"></span>  </td>
+                        <td> <span class="wind_speed"></span>  </td>
+                        <td> <span class="wind_deg"></span>  </td> 
+                        <td> <span class="wind_gust"></span>  </td> 
+                    </tr>                
+                </table>
             </div>
         </div>
-        
-      
+        <script>
+        $(document).ready(function(){
+          $(".formSubmit").click(function(){
+             
+            var zipcode = $("#zipcode").val();
+            $.post("{{ url('/') }}/api/v1/getWeatherInfo",
+            {
+              zip: zipcode
+            },
+            function(data,status){
+              if(data.status==1){  
+                $(".alert-danger").hide(100);     
+                $("#data-show").fadeIn(300);  
+                $(".city_name").html(data.response['name']);
+                $(".wind_speed").html(data.response['wind']['speed']);
+                $(".wind_deg").html(data.response['wind']['deg']);
+                $(".wind_gust").html(data.response['wind']['gust']);
+              }else{
+                $("#data-show").hide(100);    
+                $(".alert-danger").fadeIn(300);   
+                $(".error-msg").html(data.message);
+                setTimeout(function(){ $(".alert-danger").fadeOut(300);  }, 2000);
+              }
+              
+            });
+          });
+        });
+        function isNumber(evt) {
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57))
+           return false;
+        return true;
+        }    
+        </script>        
     </body>
 </html>
